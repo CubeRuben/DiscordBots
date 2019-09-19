@@ -31,4 +31,4 @@ bot.on('guildMemberAdd', member => {
 	member.user.send("[read ~/scp-079/dialogs/guild_member_add.txt]\nДобро пожаловать на сервер Zone 19 Staff\n[member.[error]]");
 });
 
-bot.login('NTM0MDA4MTYyMzkxNDI1MDI0.XNq9Gg.hFl9FzjYRvJgxyLNZf4VYGbIsds');
+bot.login('');
