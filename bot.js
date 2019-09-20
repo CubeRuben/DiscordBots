@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
+const login = require("./token.json")
 const prefix = "!";
 
 bot.on('ready', () => {
@@ -31,4 +32,4 @@ bot.on('guildMemberAdd', member => {
 	member.user.send("[read ~/scp-079/dialogs/guild_member_add.txt]\nДобро пожаловать на сервер Zone 19 Staff\n[member.[error]]");
 });
 
-bot.login('NTM0MDA4MTYyMzkxNDI1MDI0.XNq9Gg.hFl9FzjYRvJgxyLNZf4VYGbIsds');
+bot.login(login.token);
