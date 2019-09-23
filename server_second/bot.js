@@ -6,14 +6,14 @@ const bot = new Discord.Client();
 
 function checkNumberOfPlayers() 
 {
-    let numberOfPlayers = fs.readFileSync("../../server7778.txt");
-    console.log(numberOfPlayers + " of 30");
-    bot.user.setActivity(", что " + numberOfPlayers + " из 30 игроков на сервере", {type: "WATCHING"} );
+    let numberOfPlayers = fs.readFileSync("../server7778.txt");
+    console.log((numberOfPlayers - 1) + " of 30");
+    bot.user.setActivity(", что " + (numberOfPlayers - 1) + " из 30 игроков на сервере", {type: "WATCHING"} );
 }
 
 bot.on('ready', () => {
     console.log("Server bot loaded");
-    checkNumberOfPlayers() 
+    checkNumberOfPlayers();
     setInterval(() => checkNumberOfPlayers(), 10000);
 });
 
