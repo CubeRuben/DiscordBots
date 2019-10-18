@@ -4,8 +4,9 @@ const fs = require("fs");
 
 const bot = new Discord.Client();
 
-const prefix = "*";
+const prefix = "";
 
+var voiceConnection;
 
 function listeningSCP() 
 {
@@ -40,6 +41,32 @@ function checkTeamKllers(channel)
 	fs.writeFileSync("../teamkillers.txt", "");
 }
 
+function cassiePlay(args, textChannel, index) 
+{
+	if (index < args.length) 
+	{
+		if (voiceConnection == null) 
+		{
+			textChannel.send("**ERROR: Я не разговариваю с вами**");
+			return;
+		}
+
+		let word = args[index];
+
+		if (word.includes('/') || word.includes('\\')) 
+		{
+			textChannel.send("**ERROR: Доступ запрещён**");
+			return;
+		}
+
+		const dispatcher = voiceConnection.playFile('./cassie/' + word.toLowerCase() + '.wav');
+
+		dispatcher.on('end', () => {
+			setTimeout(() => cassiePlay(args, textChannel, index + 1), 100);
+		});
+	}
+}
+
 bot.on('ready', () => {
 	let channel = bot.channels.find(channel => channel.id == '625299054733164585');
 	
@@ -58,6 +85,33 @@ bot.on('message', message => {
 		{
 			case prefix + "CHANGESCP":
 				listeningSCP();
+			break;
+			case prefix + "JOIN":
+				let voiceChannel = message.member.voiceChannel;
+
+				if (voiceChannel == null) 
+				{
+					message.channel.send("**ERROR: Вы не были найдены в голосовом чате**");
+					break;
+				}
+
+				voiceChannel.join()
+				.then(connection => {
+					voiceConnection = connection
+				});
+				message.channel.send("**INFO: Я присоединился к вам**");
+			break;
+			case prefix + "LEAVE":
+				if (voiceConnection == null) 
+				{
+					message.channel.send("**INFO: Я не разговариваю с вами**");
+					break;
+				}
+				voiceConnection.disconnect();
+				message.channel.send("**INFO: Я покинул вас**");
+			break;
+			case prefix + "CASSIE":
+				cassiePlay(args, message.channel, 1);
 			break;
 			/*case prefix + "DOCUMENT":
 				if (!args[1]) 
