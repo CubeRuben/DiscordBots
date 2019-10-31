@@ -59,7 +59,7 @@ function cassiePlay(args, textChannel, index)
 			return;
 		}
 
-		const dispatcher = voiceConnection.playFile('./cassie/' + word.toLowerCase() + '.wav');
+		const dispatcher = voiceConnection.playFile('./cassie/' + word.toLowerCase() + '.ogg', { type: 'ogg/opus' } );
 
 		dispatcher.on('end', () => {
 			setTimeout(() => cassiePlay(args, textChannel, index + 1), 100);
@@ -67,13 +67,45 @@ function cassiePlay(args, textChannel, index)
 	}
 }
 
+function reactRoleGetingMessage(message) 
+{
+	message.react(message.guild.emojis.get('616944368028483605'));
+	message.react(message.guild.emojis.get('603174262802612239'));
+	message.react(message.guild.emojis.get('638880035331112986'));
+	message.react(message.guild.emojis.get('616945472065634305'));
+}
+
+/*function checkBanList(message) 
+{
+	let banList = fs.readFileSync("../SteamIdBans.txt");
+	let lines = banList.toString().split('\n');
+	let msgBanList = "```bash\n\"Список игроков, которые заблокированы на нашем сервере\"\n";
+
+	for	(let i = 0; i < lines.length - 1; i++) 
+	{
+		let player = lines[i].split(';');
+		let date = new Date();
+		date.setMinutes(player[5] / 600000000);
+		//.getDate().toString() + "." + date.getMonth().toString() + "." + (date.getFullYear() - 2019).toString()
+		msgBanList += player[0] + " - " + date.toDateString() + "\n";
+	}
+	msgBanList += "```"
+    message.edit(msgBanList);
+}*/
+
 bot.on('ready', () => {
-	let channel = bot.channels.find(channel => channel.id == '625299054733164585');
-	
 	locale: 'ru';
+
+	let channelForTeamKillers = bot.channels.find(channel => channel.id == '625299054733164585');
+	/*let channelForBanList = bot.channels.find(channel => channel.id == '611119158448488468');
+    channelForBanList.send("Запуск").then( (msg) => {
+        checkBanList(msg)
+        setInterval(() => checkBanList(msg), 10000);
+    });*/
+
 	console.log("Bot online");
 	listeningSCP();
-	setInterval(() => checkTeamKllers(channel), 10000);
+	setInterval(() => checkTeamKllers(channelForTeamKillers), 10000);
 });
 
 bot.on('message', message => {
@@ -128,31 +160,92 @@ bot.on('message', message => {
 			break;*/
 		}
 	}
+	
 
-	if ((message.author.id == '416281457376624651') || (message.author.id == '372775021996802049') || (message.author.id == '405261561586909185') || (message.author.id == '530332416557187095'))
+	if (message.channel.id == '625327729461559338') 
 	{
-		if (message.channel.id == '625327729461559338') 
+		switch (cmd) 
 		{
-			switch (cmd) 
-			{
-				case prefix + "GETBANLISTIP":
-					message.channel.send({files:[{ attachment: '../.config/SCP Secret Laboratory/IpBans.txt', name: 'IpBans.txt' }]});
-				break;
-				case prefix + "GETBANLISTSTEAMID":
-						message.channel.send({files:[{ attachment: '../.config/SCP Secret Laboratory/SteamIdBans.txt', name: 'SteamIdBans.txt' }]});
-				break;
-				case prefix + "GETCONFIGREMOTEADMIN":
-						message.channel.send({files:[{ attachment: '../scpslserver/servers/public/config_remoteadmin.txt', name: 'config_remoteadmin.txt' }]});
-				break;
-			}
+			case prefix + "GET":
+				message.channel.send( { files: [args[1]] } );
+			break;
+			case prefix + "SENDGETINGROLEMESSAGE":
+				const messageForGettingRoles = new Discord.RichEmbed()
+				.setAuthor("Получение ролей")
+				.setColor("#00ff00")
+				.setTitle("При первом выборе роли, Вы её получите\nПри повторном выборе, её с Вас снимут")
+				.addField("<:like:616944368028483605> - Роль Новости", "Уведомления об новостях проекта и SCP SL", false)
+				.addField("<:kva:603174262802612239> - Роль Объявления AutoEvents", "Уведомления об упоминании игроков AutoEvents", false)
+				.addField("<:RP_2:638880035331112986> - Роль Объявления LightRP", "Уведомления об упоминании игроков LightRP", false)
+				.addField("<:respect:616945472065634305> - Роль Анимешник", "Доступ к аниме каналам", false);
+				message.guild.channels.find(channel => channel.id == '639459635107201034').send(messageForGettingRoles)
+				.then(msg => reactRoleGetingMessage(msg));
+			break;
 		}
 	}
+	
 });
 
 bot.on('guildMemberAdd', member => {
 	member.addRole('530682603477532672');
 	console.log("New user " + member.user.username + " joined");
-	member.user.send("[read ~/scp-079/dialogs/guild_member_add.txt]\nДобро пожаловать на сервер Zone 19 Staff\n[member.[error]]");
+	member.user.send("```bash\n[call event 'guildMemberAdd']\n[read '~/scp-079/dialogs/guild_member_add.txt']\n\"Добро пожаловать на сервер Zone 19 Staff\"\n```");
 });
+
+bot.on('messageReactionAdd', (messageReaction, user) => {
+	if (messageReaction.message.channel.id == '639459635107201034') 
+	{
+		if (bot.user != user) 
+		{
+			let member = bot.guilds.find(guild => guild.id == '530426891614552085').members.find(member => member.user == user);
+
+			switch (messageReaction.emoji.id) 
+			{
+				case '638880035331112986':
+					if (member.roles.get('636131807062130688') == null)  
+					{ member.addRole('636131807062130688'); member.addRole('639581517307183106'); }
+					else 
+					{ member.removeRole('636131807062130688'); }
+				break;
+				case '603174262802612239':
+					if (member.roles.get('639460078956707840') == null) 
+					{ member.addRole('639460078956707840'); member.addRole('639581517307183106'); } 
+					else 
+					{ member.removeRole('639460078956707840'); }
+				break;
+				case '616944368028483605':
+					if (member.roles.get('639460289259241502') == null) 
+					{ member.addRole('639460289259241502'); member.addRole('639581517307183106'); } 
+					else 
+					{ member.removeRole('639460289259241502'); }
+				break;
+				case '616945472065634305':
+					if (member.roles.get('635568091971190836') == null) 
+					{ member.addRole('635568091971190836'); member.addRole('639581517307183106'); } 
+					else 
+					{ member.removeRole('635568091971190836'); }
+				break;
+			}
+			
+			setTimeout(() => {
+
+			member = bot.guilds.find(guild => guild.id == '530426891614552085').members.find(member => member.user == user);
+
+			if ((member.roles.get('636131807062130688') == null) && (member.roles.get('639460078956707840') == null) && (member.roles.get('639460289259241502') == null) && (member.roles.get('635568091971190836') == null)) 
+			{
+				member.removeRole('639581517307183106');
+			}
+
+			}, 1000);
+
+			messageReaction.remove(user);
+		}
+	}
+});
+
+bot.on('error', error => {
+	console.log("Something ERROR");
+});
+
 
 bot.login(login.token);
