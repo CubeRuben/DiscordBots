@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const login = require("./token.json");
 const fs = require("fs");
+const request = require("request");
 
 const bot = new Discord.Client();
 
@@ -168,6 +169,12 @@ bot.on('message', message => {
 		{
 			case prefix + "GET":
 				message.channel.send( { files: [args[1]] } );
+			break;
+			case prefix + "DOWNLOAD":
+				//message.attachments.first();
+				request.get(message.attachments.first().url)
+				.on('error', () => message.channel.send("Ошибка"))
+				.pipe(fs.createWriteStream('downloads/' + message.attachments.first().filename))
 			break;
 			case prefix + "SENDGETINGROLEMESSAGE":
 				const messageForGettingRoles = new Discord.RichEmbed()
